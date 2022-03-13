@@ -1,20 +1,19 @@
-import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { AuthenticationController } from './ui/web/controller/authentication.controller';
 import { AuthenticationService } from './application/service/authentication.service';
 import { JwtModule } from '@nestjs/jwt';
 import { secret } from '../../constants/secret';
-import { MongooseModule } from '@nestjs/mongoose';
-import { User, UserSchema } from '../../schema/user';
+import { UserEntity } from '../../schema/user.entity';
 import { isAuthenticated } from './ui/web/middleware/authentication.middleware';
-import { VideoController } from '../video/ui/web/controller/video.controller';
+import {TypeOrmModule} from "@nestjs/typeorm";
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([UserEntity]),
     JwtModule.register({
       secret,
       signOptions: { expiresIn: '2h' },
     }),
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
   ],
   controllers: [AuthenticationController],
   providers: [AuthenticationService],
@@ -22,8 +21,6 @@ import { VideoController } from '../video/ui/web/controller/video.controller';
 export class AuthenticationModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
-      .apply(isAuthenticated)
-      .exclude({ path: 'api/v1/video/:id', method: RequestMethod.GET })
-      .forRoutes(VideoController);
+      .apply(isAuthenticated);
   }
 }

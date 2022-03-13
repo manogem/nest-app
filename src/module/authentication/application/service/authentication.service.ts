@@ -1,40 +1,38 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument } from '../../../../schema/user';
-import { Model } from 'mongoose';
+import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
+import {UserEntity} from '../../../../schema/user.entity';
 import * as bcrypt from 'bcrypt';
-import { JwtService } from '@nestjs/jwt';
+import {JwtService} from '@nestjs/jwt';
+import {InsertResult, Repository} from "typeorm";
+import {InjectRepository} from "@nestjs/typeorm";
 
 @Injectable()
 export class AuthenticationService {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+  constructor(
+      @InjectRepository(UserEntity)
+      private usersRepository: Repository<UserEntity>,
+      private jwtService: JwtService,
+  ) {}
 
-  async getOne(email): Promise<User> {
-    return await this.userModel.findOne({ email }).exec();
+  async getOne(email): Promise<UserEntity> {
+    return await this.usersRepository.findOne({ email });
   }
 
-  async signup(user: User): Promise<User> {
+  async signup(user: UserEntity): Promise<InsertResult> {
     const salt = await bcrypt.genSalt();
-    const hash = await bcrypt.hash(user.password, salt);
-    const reqBody = {
-      fullname: user.fullname,
-      email: user.email,
-      password: hash,
-    };
-    const newUser = new this.userModel(reqBody);
-    return newUser.save();
+    user.password = await bcrypt.hash(user.password, salt);
+
+    return this.usersRepository.insert(user);
   }
 
-  async signin(user: User, jwt: JwtService): Promise<any> {
-    const foundUser = await this.userModel
-      .findOne({ email: user.email })
-      .exec();
+  async signin(user: UserEntity): Promise<any> {
+    const foundUser = await this.usersRepository.findOne({ email: user.email });
+
     if (foundUser) {
       const { password } = foundUser;
       if (bcrypt.compare(user.password, password)) {
         const payload = { email: user.email };
         return {
-          token: jwt.sign(payload),
+          token: this.jwtService.sign(payload),
         };
       }
       return new HttpException(

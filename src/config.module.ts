@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path/posix';
 import { MulterModule } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { v4 as uuidv4 } from 'uuid';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
@@ -20,7 +20,16 @@ import { v4 as uuidv4 } from 'uuid';
         },
       }),
     }),
-    MongooseModule.forRoot('mongodb://localhost:27017/Stream'),
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: '172.17.0.1',
+      port: 15432,
+      username: 'test',
+      password: 'test',
+      database: 'test',
+      entities: ["dist/**/*.entity{.ts,.js}"],
+      synchronize: true,
+    }),
   ],
 })
 export class ConfigModule {}
