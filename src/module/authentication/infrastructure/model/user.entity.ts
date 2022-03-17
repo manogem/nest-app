@@ -1,6 +1,6 @@
 import {Entity, Column, PrimaryGeneratedColumn, CreateDateColumn} from 'typeorm';
 
-@Entity()
+@Entity({ name: 'nestjs.user' })
 export class UserEntity {
   @PrimaryGeneratedColumn()
   id: number;
@@ -17,8 +17,8 @@ export class UserEntity {
   @Column()
   password: string;
 
-  @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
-  createDate: string;
+  @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP()" })
+  public createDate: Date;
 
   @Column({ default: true })
   isActive: boolean;
