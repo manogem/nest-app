@@ -1,58 +1,43 @@
-import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
+import {Injectable} from '@nestjs/common';
 import {UserEntity} from '../../infrastructure/model/user.entity';
 import * as bcrypt from 'bcrypt';
 import {JwtService} from '@nestjs/jwt';
 import {InjectRepository} from "@nestjs/typeorm";
-import {AuthenticationReadRepository} from "../../infrastructure/repository/authentication.read.repository";
+import {AuthenticationWriteRepository} from "../../infrastructure/repository/authentication.write.repository";
 import {UserDto} from "../../ui/web/request/user.dto";
 
 @Injectable()
 export class AuthenticationService {
   constructor(
-      @InjectRepository(AuthenticationReadRepository)
-      private usersRepository: AuthenticationReadRepository,
+      @InjectRepository(AuthenticationWriteRepository)
+      private authenticationWriteRepository: AuthenticationWriteRepository,
       private jwtService: JwtService,
   ) {}
 
-  async getOneByEmail(email: string): Promise<UserEntity> {
-    return await this.usersRepository.findOneByEmail(email);
-  }
-
-  async getOne(): Promise<UserEntity> {
-    return await this.usersRepository.findOne();
-  }
-
-  async getAll(): Promise<UserEntity[]> {
-    return await this.usersRepository.findAll();
-  }
-
-
-  async signup(user: UserDto): Promise<UserEntity> {
+  signUp = async (user: UserDto): Promise<UserEntity> => {
     const salt = await bcrypt.genSalt();
     user.password = await bcrypt.hash(user.password, salt);
 
-    return this.usersRepository.persist(user);
-  }
+    return this.authenticationWriteRepository.persist(user);
+  };
 
-  async signin(user: UserDto): Promise<any> {
-    const foundUser = await this.usersRepository.findOneByEmail(user.email);
+  validateUser = async (username: string, password: string): Promise<any> => {
+    const user = await this.authenticationWriteRepository.getOneByEmail(username);
 
-    if (foundUser) {
-      const { password } = foundUser;
-      if (bcrypt.compare(user.password, password)) {
-        const payload = { email: user.email };
-        return {
-          token: this.jwtService.sign(payload),
-        };
-      }
-      return new HttpException(
-        'Incorrect username or password',
-        HttpStatus.UNAUTHORIZED,
-      );
+    if (bcrypt.compare(user.password, password)) {
+      const { password, ...result } = user;
+      return result;
     }
-    return new HttpException(
-      'Incorrect username or password',
-      HttpStatus.UNAUTHORIZED,
-    );
-  }
+
+    return null;
+  };
+
+  signIn = async (user: any): Promise<any> => {
+    console.log(user);
+    const payload = { username: user.username, sub: user.userId };
+
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
+  };
 }
