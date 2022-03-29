@@ -1,31 +1,41 @@
 import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
-import {UserEntity} from '../../../../schema/user.entity';
+import {UserEntity} from '../../infrastructure/model/user.entity';
 import * as bcrypt from 'bcrypt';
 import {JwtService} from '@nestjs/jwt';
-import {InsertResult, Repository} from "typeorm";
 import {InjectRepository} from "@nestjs/typeorm";
+import {AuthenticationReadRepository} from "../../infrastructure/repository/authentication.read.repository";
+import {UserDto} from "../../ui/web/request/user.dto";
 
 @Injectable()
 export class AuthenticationService {
   constructor(
-      @InjectRepository(UserEntity)
-      private usersRepository: Repository<UserEntity>,
+      @InjectRepository(AuthenticationReadRepository)
+      private usersRepository: AuthenticationReadRepository,
       private jwtService: JwtService,
   ) {}
 
-  async getOne(email): Promise<UserEntity> {
-    return await this.usersRepository.findOne({ email });
+  async getOneByEmail(email: string): Promise<UserEntity> {
+    return await this.usersRepository.findOneByEmail(email);
   }
 
-  async signup(user: UserEntity): Promise<InsertResult> {
+  async getOne(): Promise<UserEntity> {
+    return await this.usersRepository.findOne();
+  }
+
+  async getAll(): Promise<UserEntity[]> {
+    return await this.usersRepository.findAll();
+  }
+
+
+  async signup(user: UserDto): Promise<UserEntity> {
     const salt = await bcrypt.genSalt();
     user.password = await bcrypt.hash(user.password, salt);
 
-    return this.usersRepository.insert(user);
+    return this.usersRepository.persist(user);
   }
 
-  async signin(user: UserEntity): Promise<any> {
-    const foundUser = await this.usersRepository.findOne({ email: user.email });
+  async signin(user: UserDto): Promise<any> {
+    const foundUser = await this.usersRepository.findOneByEmail(user.email);
 
     if (foundUser) {
       const { password } = foundUser;

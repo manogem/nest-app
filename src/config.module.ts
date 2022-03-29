@@ -20,16 +20,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         },
       }),
     }),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: '172.17.0.1',
-      port: 15432,
-      username: 'test',
-      password: 'test',
-      database: 'test',
-      entities: ["dist/**/*.entity{.ts,.js}"],
-      synchronize: true,
-    }),
+    TypeOrmModule.forRoot(),
   ],
 })
 export class ConfigModule {}
