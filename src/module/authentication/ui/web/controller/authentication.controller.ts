@@ -1,44 +1,26 @@
-import { Body, Controller, Get, HttpStatus, Post, Res } from '@nestjs/common';
+import { Body, Controller, HttpStatus, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthenticationService } from '../../../application/service/authentication.service';
 import {UserDto} from "../request/user.dto";
+import {LocalAuthGuard} from "../guard/local-auth.guard";
 
-@Controller('/api/v1/user')
+@Controller('/api/v1/auth')
 export class AuthenticationController {
   constructor(
     private readonly authenticationService: AuthenticationService,
   ) {}
 
-  @Get('/test')
-  async test(@Res() response) {
-    return response.status(HttpStatus.OK).json('Hello world!');
+  @Post('/sign-up')
+  async signUp(@Res() response, @Body() user: UserDto) {
+    const newUser = await this.authenticationService.signUp(user);
+
+    return response.status(HttpStatus.CREATED).json(newUser);
   }
 
-  @Get('/one')
-  async getOne(@Res() response) {
-    const data = await this.authenticationService.getOne();
+  @UseGuards(LocalAuthGuard)
+  @Post('/sign-in')
+  async signIn(@Res() response, @Req() req) {
+    const token = await this.authenticationService.signIn(req.user);
 
-    return response.status(HttpStatus.OK).json(data);
-  }
-
-  @Get('/all')
-  async getAll(@Res() response) {
-    const data = await this.authenticationService.getAll();
-
-    return response.status(HttpStatus.OK).json(data);
-  }
-
-  @Post('/signup')
-  async signup(@Res() response, @Body() user: UserDto) {
-    console.log(user);
-    const newUSer = await this.authenticationService.signup(user);
-    return response.status(HttpStatus.CREATED).json({
-      newUSer,
-    });
-  }
-
-  @Post('/signin')
-  async signIn(@Res() response, @Body() user: UserDto) {
-    const token = await this.authenticationService.signin(user);
     return response.status(HttpStatus.OK).json(token);
   }
 }
