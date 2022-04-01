@@ -8,7 +8,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthenticationService } from '../../../application/service/authentication.service';
-import { UserDto } from '../request/user.dto';
+import { CreateUserDto } from '../request/create-user.dto';
 import { LocalAuthGuard } from '../guard/local-auth.guard';
 
 @Controller('/api/v1/auth')
@@ -16,7 +16,7 @@ export class AuthenticationController {
   constructor(private readonly authenticationService: AuthenticationService) {}
 
   @Post('/sign-up')
-  async signUp(@Res() response, @Body() user: UserDto) {
+  async signUp(@Res() response, @Body() user: CreateUserDto) {
     const newUser = await this.authenticationService.signUp(user);
 
     return response.status(HttpStatus.CREATED).json(newUser);
