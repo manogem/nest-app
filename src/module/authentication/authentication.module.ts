@@ -5,10 +5,10 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { secret } from '../../constants/secret';
 import { UserEntity } from './infrastructure/model/user.entity';
-import {TypeOrmModule} from "@nestjs/typeorm";
-import {AuthenticationWriteRepository} from "./infrastructure/repository/authentication.write.repository";
-import {LocalStrategy} from "./application/strategy/local.strategy";
-import {JwtStrategy} from "./application/strategy/jwt.strategy";
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthenticationWriteRepository } from './infrastructure/repository/authentication.write.repository';
+import { LocalStrategy } from './application/strategy/local.strategy';
+import { JwtStrategy } from './application/strategy/jwt.strategy';
 
 @Module({
   imports: [
@@ -17,13 +17,9 @@ import {JwtStrategy} from "./application/strategy/jwt.strategy";
       secret,
       signOptions: { expiresIn: '2h' },
     }),
-    PassportModule
+    PassportModule,
   ],
   controllers: [AuthenticationController],
-  providers: [
-    AuthenticationService,
-    LocalStrategy,
-    JwtStrategy
-  ],
+  providers: [AuthenticationService, LocalStrategy, JwtStrategy],
 })
 export class AuthenticationModule {}

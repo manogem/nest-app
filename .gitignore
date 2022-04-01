@@ -5,3 +5,5 @@ build/
 dist/
 tmp/
 temp/
+yarn-error.log
+pgdata
