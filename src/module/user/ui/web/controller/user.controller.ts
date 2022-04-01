@@ -1,12 +1,17 @@
-import { Controller, Get, HttpStatus, Res, Param, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpStatus,
+  Res,
+  Param,
+  UseGuards,
+} from '@nestjs/common';
 import { UserService } from '../../../application/service/user.service';
-import {JwtAuthGuard} from "../../../../authentication/ui/web/guard/jwt-auth.guard";
+import { JwtAuthGuard } from '../../../../authentication/ui/web/guard/jwt-auth.guard';
 
 @Controller('/api/v1/users')
 export class UserController {
-  constructor(
-    private readonly authenticationService: UserService,
-  ) {}
+  constructor(private readonly authenticationService: UserService) {}
 
   @UseGuards(JwtAuthGuard)
   @Get('/:id')

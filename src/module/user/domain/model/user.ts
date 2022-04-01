@@ -5,13 +5,7 @@ export class User {
   private readonly _password: string;
   private readonly _isActive: boolean;
 
-  constructor(
-      firstName,
-      lastName,
-      email,
-      password,
-      isActive = true,
-  ) {
+  constructor(firstName, lastName, email, password, isActive = true) {
     this._firstName = firstName;
     this._lastName = lastName;
     this._email = email;
@@ -19,29 +13,23 @@ export class User {
     this._isActive = isActive;
   }
 
-  public get firstName(): string
-  {
+  public get firstName(): string {
     return this._firstName;
   }
 
-  public get lastName(): string
-  {
+  public get lastName(): string {
     return this._lastName;
   }
 
-  public get email(): string
-  {
+  public get email(): string {
     return this._email;
   }
 
-  public get password(): string
-  {
+  public get password(): string {
     return this._password;
   }
 
-  public get isActive(): boolean
-  {
+  public get isActive(): boolean {
     return this._isActive;
   }
 }
-

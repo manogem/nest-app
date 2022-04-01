@@ -4,8 +4,8 @@ import { UserService } from './application/service/user.service';
 import { JwtModule } from '@nestjs/jwt';
 import { secret } from '../../constants/secret';
 import { UserEntity } from './infrastructure/model/user.entity';
-import {TypeOrmModule} from "@nestjs/typeorm";
-import {UserReadRepository} from "./infrastructure/repository/user.read.repository";
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { UserReadRepository } from './infrastructure/repository/user.read.repository';
 
 @Module({
   imports: [
@@ -16,8 +16,6 @@ import {UserReadRepository} from "./infrastructure/repository/user.read.reposito
     }),
   ],
   controllers: [UserController],
-  providers: [
-      UserService,
-  ],
+  providers: [UserService],
 })
 export class UserModule {}

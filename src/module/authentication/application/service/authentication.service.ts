@@ -1,17 +1,17 @@
-import {Injectable} from '@nestjs/common';
-import {UserEntity} from '../../infrastructure/model/user.entity';
+import { Injectable } from '@nestjs/common';
+import { UserEntity } from '../../infrastructure/model/user.entity';
 import * as bcrypt from 'bcrypt';
-import {JwtService} from '@nestjs/jwt';
-import {InjectRepository} from "@nestjs/typeorm";
-import {AuthenticationWriteRepository} from "../../infrastructure/repository/authentication.write.repository";
-import {UserDto} from "../../ui/web/request/user.dto";
+import { JwtService } from '@nestjs/jwt';
+import { InjectRepository } from '@nestjs/typeorm';
+import { AuthenticationWriteRepository } from '../../infrastructure/repository/authentication.write.repository';
+import { UserDto } from '../../ui/web/request/user.dto';
 
 @Injectable()
 export class AuthenticationService {
   constructor(
-      @InjectRepository(AuthenticationWriteRepository)
-      private authenticationWriteRepository: AuthenticationWriteRepository,
-      private jwtService: JwtService,
+    @InjectRepository(AuthenticationWriteRepository)
+    private authenticationWriteRepository: AuthenticationWriteRepository,
+    private jwtService: JwtService,
   ) {}
 
   signUp = async (user: UserDto): Promise<UserEntity> => {
@@ -22,7 +22,9 @@ export class AuthenticationService {
   };
 
   validateUser = async (username: string, password: string): Promise<any> => {
-    const user = await this.authenticationWriteRepository.getOneByEmail(username);
+    const user = await this.authenticationWriteRepository.getOneByEmail(
+      username,
+    );
 
     if (bcrypt.compare(user.password, password)) {
       const { password, ...result } = user;
