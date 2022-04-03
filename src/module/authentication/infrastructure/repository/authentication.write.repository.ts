@@ -1,14 +1,14 @@
 import { UserEntity } from '../model/user.entity';
 import { EntityRepository, Repository } from 'typeorm';
-import { CreateUserDto } from '../../ui/web/request/create-user.dto';
+import { UserDto } from '../../ui/web/request/user.dto';
 
 @EntityRepository(UserEntity)
 export class AuthenticationWriteRepository extends Repository<UserEntity> {
   getOneByEmail = async (email: string): Promise<UserEntity> => {
-    return await this.findOne({ email });
+    return await this.findOneOrFail({ email });
   };
 
-  persist = async (user: CreateUserDto): Promise<UserEntity> => {
+  persist = async (user: UserDto): Promise<UserEntity> => {
     const userEntity = new UserEntity();
     userEntity.firstName = user.firstName;
     userEntity.lastName = user.lastName;

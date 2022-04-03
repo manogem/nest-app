@@ -7,6 +7,10 @@ export class UserReadRepository extends Repository<UserEntity> {
     return await this.findOneOrFail(id);
   };
 
+  getOneByEmail = async (email: string): Promise<UserEntity> => {
+    return await this.findOneOrFail({ email });
+  };
+
   getAll = async (): Promise<UserEntity[]> => {
     return await this.find();
   };
