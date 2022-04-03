@@ -1,4 +1,4 @@
-import {MigrationInterface, QueryRunner, Table} from "typeorm";
+import {MigrationInterface, QueryRunner, Table, TableIndex} from "typeorm";
 
 export class CreateUserTable1647377541521 implements MigrationInterface {
 
@@ -40,7 +40,12 @@ export class CreateUserTable1647377541521 implements MigrationInterface {
                     default: true
                 }
             ]
-        }), true)
+        }), true);
+
+        await queryRunner.createUniqueConstraint("nestjs.user", new TableIndex({
+            name: "IDX_EMAIL",
+            columnNames: ["email"]
+        }));
     }
 
     public async down(queryRunner: QueryRunner): Promise<void>
