@@ -5,7 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AuthenticationWriteRepository } from '../../infrastructure/repository/authentication.write.repository';
 import { CreateUserDto } from '../../ui/web/request/create-user.dto';
-import { UserEmailAlreadyExistsException } from "../../domain/exception/user-email-already-exists.exception";
+import { UserEmailAlreadyExistsException } from '../../domain/exception/user-email-already-exists.exception';
 
 @Injectable()
 export class AuthenticationService {
@@ -16,18 +16,30 @@ export class AuthenticationService {
   ) {}
 
   signUp = async (user: CreateUserDto): Promise<UserEntity> => {
+    const userEmailAlreadyExists =
+      await this.authenticationWriteRepository.getOneByEmail(user.email);
+
+    if (userEmailAlreadyExists) {
+      throw new UserEmailAlreadyExistsException(
+        `User with email ${user.email} already exists`,
+      );
+    }
+
     const salt = await bcrypt.genSalt();
     user.password = await bcrypt.hash(user.password, salt);
 
     return this.authenticationWriteRepository.persist(user);
   };
 
-  validateUser = async (username: string, password: string): Promise<UserEntity|null> => {
+  validateUser = async (
+    username: string,
+    password: string,
+  ): Promise<UserEntity | null> => {
     const user = await this.authenticationWriteRepository.getOneByEmail(
       username,
     );
 
-    if (user && await bcrypt.compare(password, user.password)) {
+    if (user && (await bcrypt.compare(password, user.password))) {
       return user;
     }
 
