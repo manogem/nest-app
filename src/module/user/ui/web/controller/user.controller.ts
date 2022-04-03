@@ -2,30 +2,28 @@ import {
   Controller,
   Get,
   HttpStatus,
-  Res,
   Param,
   UseGuards,
+  HttpCode,
 } from '@nestjs/common';
 import { UserService } from '../../../application/service/user.service';
 import { JwtAuthGuard } from '../../../../authentication/ui/web/guard/jwt-auth.guard';
 
-@Controller('/api/v1/users')
+@Controller('/users')
 export class UserController {
   constructor(private readonly authenticationService: UserService) {}
 
+  @Get('/')
   @UseGuards(JwtAuthGuard)
-  @Get('/:id')
-  async getOne(@Res() response, @Param('id') id: number) {
-    const data = await this.authenticationService.getOne(id);
-
-    return response.status(HttpStatus.OK).json(data);
+  @HttpCode(HttpStatus.OK)
+  async getAll() {
+    return await this.authenticationService.getAll();
   }
 
+  @Get('/:id')
   @UseGuards(JwtAuthGuard)
-  @Get('/')
-  async getAll(@Res() response) {
-    const data = await this.authenticationService.getAll();
-
-    return response.status(HttpStatus.OK).json(data);
+  @HttpCode(HttpStatus.OK)
+  async getOne(@Param('id') id: number) {
+    return await this.authenticationService.getOne(id);
   }
 }
