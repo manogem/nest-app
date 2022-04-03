@@ -7,3 +7,4 @@ tmp/
 temp/
 yarn-error.log
 pgdata
+.env
