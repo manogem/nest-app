@@ -4,8 +4,7 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AuthenticationWriteRepository } from '../../infrastructure/repository/authentication.write.repository';
-import { CreateUserDto } from '../../ui/web/request/create-user.dto';
-import { UserEmailAlreadyExistsException } from '../../domain/exception/user-email-already-exists.exception';
+import { UserDto } from '../../ui/web/request/user.dto';
 
 @Injectable()
 export class AuthenticationService {
@@ -15,43 +14,32 @@ export class AuthenticationService {
     private jwtService: JwtService,
   ) {}
 
-  signUp = async (user: CreateUserDto): Promise<UserEntity> => {
-    const userEmailAlreadyExists =
-      await this.authenticationWriteRepository.getOneByEmail(user.email);
-
-    if (userEmailAlreadyExists) {
-      throw new UserEmailAlreadyExistsException(
-        `User with email ${user.email} already exists`,
-      );
-    }
-
+  signUp = async (user: UserDto): Promise<UserEntity> => {
     const salt = await bcrypt.genSalt();
     user.password = await bcrypt.hash(user.password, salt);
 
     return this.authenticationWriteRepository.persist(user);
   };
 
-  validateUser = async (
-    username: string,
-    password: string,
-  ): Promise<UserEntity | null> => {
+  validateUser = async (username: string, password: string): Promise<any> => {
     const user = await this.authenticationWriteRepository.getOneByEmail(
       username,
     );
 
-    if (user && (await bcrypt.compare(password, user.password))) {
-      return user;
+    if (bcrypt.compare(user.password, password)) {
+      const { password, ...result } = user;
+      return result;
     }
 
     return null;
   };
 
   signIn = async (user: any): Promise<any> => {
+    console.log(user);
+    const payload = { username: user.username, sub: user.userId };
+
     return {
-      access_token: this.jwtService.sign({
-        username: user.username,
-        sub: user.userId,
-      }),
+      access_token: this.jwtService.sign(payload),
     };
   };
 }
